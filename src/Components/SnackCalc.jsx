@@ -4,9 +4,20 @@ import "./SnackCalc.css";
 
 export const SnackCalc = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortDirection, setSortDirection] = useState("asc");
 
   const handleChange = (event) => {
     setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  const handleHeaderClick = (column) => {
+    if (column === sortColumn) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
   };
 
   const filteredSnacks = snacks.filter(
@@ -14,6 +25,19 @@ export const SnackCalc = () => {
       snack.product_name.toLowerCase().includes(searchTerm) ||
       snack.ingredients.join(" ").toLowerCase().includes(searchTerm)
   );
+
+  const sortedSnacks = filteredSnacks.sort((a, b) => {
+    const columnA = a[sortColumn];
+    const columnB = b[sortColumn];
+
+    if (columnA < columnB) {
+      return sortDirection === "asc" ? -1 : 1;
+    }
+    if (columnA > columnB) {
+      return sortDirection === "asc" ? 1 : -1;
+    }
+    return 0;
+  });
 
   return (
     <div className="tableSnack">
@@ -28,16 +52,28 @@ export const SnackCalc = () => {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Product Name</th>
-            <th>Product Weight</th>
-            <th>Price</th>
-            <th>Calories</th>
-            <th>Ingredients</th>
+            <th onClick={() => handleHeaderClick("id")}>
+              ID {sortColumn === "id" && <span>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+            </th>
+            <th onClick={() => handleHeaderClick("product_name")}>
+              Product Name {sortColumn === "product_name" && <span>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+            </th>
+            <th onClick={() => handleHeaderClick("product_weight")}>
+              Product Weight {sortColumn === "product_weight" && <span>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+            </th>
+            <th onClick={() => handleHeaderClick("price")}>
+              Price {sortColumn === "price" && <span>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+            </th>
+            <th onClick={() => handleHeaderClick("calories")}>
+              Calories {sortColumn === "calories" && <span>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+            </th>
+            <th onClick={() => handleHeaderClick("ingredients")}>
+              Ingredients {sortColumn === "ingredients" && <span>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+            </th>
           </tr>
         </thead>
         <tbody>
-          {filteredSnacks.map((snack) => (
+          {sortedSnacks.map((snack) => (
             <tr key={snack.id}>
               <td>{snack.id}</td>
               <td>{snack.product_name}</td>
